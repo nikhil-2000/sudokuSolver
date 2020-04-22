@@ -8,11 +8,18 @@ class Grid {
   public:
     int grid[9][9];
     std::vector< std::tuple<int,int> > gaps;
+    std :: string filename;
 
     void main() {
       //Input file name
-      fillGrid("unsolved soduku.txt");
+      askForFileName();
+      fillGrid(filename);
       fillGaps();
+      outputGrid();
+      solveGrid();
+
+      std :: cout << "\n\n";
+      outputGrid();
 
     }
 
@@ -62,6 +69,10 @@ class Grid {
     }
 
   private:
+    void askForFileName(){
+      filename = "unsolved soduku.txt";
+    }
+    
     void fillGrid(std::string filename){
       std::ifstream inFile;
       std::string oneLineSoduku;
@@ -112,12 +123,109 @@ class Grid {
       }
     }
 
+    bool rowOkay(int i,int j){
+      int cellVal = grid[i][j];
+      for (int c = 0; c < 9 ; c++){
+        if (grid[i][c] == cellVal && c != j){
+          return false;
+        }
+      }
+      return true;
+    }
+
+    bool colOkay(int i,int j){
+      int cellVal = grid[i][j];
+      for (int r = 0; r < 9 ; r++){
+        if (grid[r][j] == cellVal && r != i){
+          return false;
+        }
+      }
+      return true;
+    }
+
+    bool boxOkay(int i, int j){
+      int cellVal = grid[i][j];
+      int r,c;
+      int startR, startC;
+      startR = i - (i % 3);
+      startC = j - (j % 3);
+      for (r = startR; r < 3; r++){
+        for (c = startC; c < 3; c ++){
+          if (grid[r][c] == cellVal && r != i && c != j){
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    bool valueFits(int i, int j){
+      return rowOkay(i,j) && colOkay(i,j) && boxOkay(i,j);
+    }
+
+    int getTupleRow(std::tuple<int,int> t){
+      return std::get<0>(t);
+    }
+
+    int getTupleCol(std::tuple<int,int> t){
+      return std::get<1>(t);
+    }
+
+    bool solveGap(int i, int j){
+      
+      grid[i][j] ++;
+      
+      while (!(valueFits(i,j))){
+        grid[i][j] ++;
+      }
+
+      if (grid[i][j] > 9) {
+        grid[i][j] = 0;
+        return false;
+      }else{
+        return true;
+      }
+
+    }
+
+    void solveGrid(){
+      int row,col;
+      bool gapSolved;
+      
+      int currentGap = 0;
+      while (currentGap < gaps.size()){
+        row = getTupleRow(gaps.at(currentGap)); 
+        col = getTupleCol(gaps.at(currentGap));
+        
+        gapSolved = solveGap(row,col);
+      
+
+
+        if (gapSolved){
+          currentGap ++;
+        }else{
+          currentGap --;
+        }
+
+        if (currentGap < 0){
+          std :: cout << "Unsolvable Grid\n";
+        }
+        // call solve gap on current space
+        // if true
+          //move on to next gap
+        // if false
+          //call solve gap on previous gap        
+      }
+      
+
+
+    }
+
 };
 
 
 int main() {
   Grid sodukuGrid;
   sodukuGrid.main();
-  sodukuGrid.outputGrid();
   return 0;
 }
