@@ -70,7 +70,9 @@ class Grid {
 
   private:
     void askForFileName(){
-      filename = "unsolved soduku.txt";
+      std :: cout << "Input Filename: ";
+      std :: getline(std::cin,filename);
+      
     }
     
     void fillGrid(std::string filename){
@@ -92,7 +94,6 @@ class Grid {
         grid[x][y] = n - '0';
         i++;
       }
-
 
       inFile.close();
     }
