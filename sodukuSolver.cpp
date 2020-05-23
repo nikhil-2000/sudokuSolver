@@ -88,6 +88,7 @@ class Grid {
 
       int i = 0;
       int x,y;
+
       for (char& n : oneLineSoduku){
         x = (i) / 9;
         y = (i) % 9;
