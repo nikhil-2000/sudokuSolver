@@ -8,12 +8,11 @@ class Grid {
   public:
     int grid[9][9];
     std::vector< std::tuple<int,int> > gaps;
-    std :: string filename;
 
-    void main() {
+    void main(std :: string oneLineSoduku) {
       //Input file name
-      askForFileName();
-      fillGrid(filename);
+
+      fillGrid(oneLineSoduku);
       fillGaps();
       outputGrid();
       solveGrid();
@@ -69,22 +68,9 @@ class Grid {
     }
 
   private:
-    void askForFileName(){
-      std :: cout << "Input Filename: ";
-      std :: getline(std::cin,filename);
+   
+    void fillGrid(std::string oneLineSoduku){
       
-    }
-    
-    void fillGrid(std::string filename){
-      std::ifstream inFile;
-      std::string oneLineSoduku;
-      std::string num;
-      
-      inFile.open(filename);
-
-      while (inFile >> num){
-        oneLineSoduku.append(num);
-      }
 
       int i = 0;
       int x,y;
@@ -96,7 +82,6 @@ class Grid {
         i++;
       }
 
-      inFile.close();
     }
 
     bool isGap(int i,int j) {
@@ -226,8 +211,9 @@ class Grid {
 };
 
 
-int main() {
+int main(int argc, char *argv[]) {
   Grid sodukuGrid;
-  sodukuGrid.main();
+  std::string oneLineSoduku = argv[1];
+  sodukuGrid.main(oneLineSoduku);
   return 0;
 }
