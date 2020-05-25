@@ -1,3 +1,3 @@
-# sodukuSolver
+# sudokuSolver
 
-Completes an soduku by applying backtracking
+Completes an sudoku by applying backtracking

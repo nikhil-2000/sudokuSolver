@@ -6,8 +6,8 @@ import subprocess
 
 def main():
     filename = sys.argv[1]
-    oneLineSoduku = readImage.main(filename)
-    args = ['./sodukuSolver', oneLineSoduku]
+    oneLineSudoku = readImage.main(filename)
+    args = ['./sudokuSolver', oneLineSudoku]
     p = subprocess.Popen(args)
     print(p)
 

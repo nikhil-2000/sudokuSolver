@@ -93,7 +93,6 @@ def split_sudoku_cells(img):
 	return cells
 
 def getDigit(image):
-	image = image[5:-5,5:-5]
 	# image = cv2.Canny(image,100,100)
 	custom_config = r'--oem 3 --psm 6 '
 	
@@ -102,45 +101,78 @@ def getDigit(image):
 	dig = [d for d in dig if d.isdigit()]
 	
 	if len(dig) == 0:
-		return 0
+		return "0"
 
 
 	return dig[0]
 
 def extractDigits(cells):
-	soduku = ""
+	sudoku = ""
+	leftCutoff = cells[0].shape[0]//5
+	topCutoff = cells[0].shape[1]//5
+
 	for c in cells:
+		print("DoingCells")
+		c = c[leftCutoff:-leftCutoff,topCutoff:-topCutoff]
+		kernel = np.ones((2,2),np.uint8)
+		c = cv2.dilate(c,kernel,iterations = 1)
 
-		soduku += str(getDigit(c))
+		d = getDigit(c)
+		sudoku += str(d)
 
 
-	return soduku
+	return sudoku
 
-def getOneLineSoduku(filename):
-	img = cv2.imread("testImage.jpg")
+def getOneLineSudoku(filename):
+	print("Entering Function")
+	img = cv2.imread(filename)
 	img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+	print("Converted To BW")
+	(thresh, img) = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+
+	print("Cropping Image")
+	img = cropImage(img)
+
+	print("Reading Cells")
+	cells = split_sudoku_cells(img)
+	oneLineSudoku = extractDigits(cells)
+	
+	
+	return oneLineSudoku
+
+def showCroppedImage(filename):
+
+	img = cv2.imread(filename)
+	img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 	(thresh, img) = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
 
-	cv2.imshow("Disp",img)
-	cv2.waitKey(3000)
+	# cv2.imshow("Disp",img)
+	# cv2.waitKey(3000)
 	img = cropImage(img)
 
 
 	cells = split_sudoku_cells(img)
-	oneLineSoduku = extractDigits(cells)
+	oneLineSudoku = extractDigits(cells)
 	
-	cv2.imshow("Disp 2",img)
-	cv2.waitKey(5000)
-	return oneLineSoduku
+	# cv2.imshow("Disp 2",img)
+	# cv2.waitKey(5000)
+	print(oneLineSudoku)
+	return oneLineSudoku
+
+
 	
-# def main(filename):
-def main():	
-	
-	print(getOneLineSoduku(""))
+def main(filename):
+	# return showCroppedImage(filename)
+
+	oneLineSudoku = getOneLineSudoku(filename)
+	print(oneLineSudoku)
+
+	return oneLineSudoku
 
 
 if __name__ == "__main__":
-	main()
+	showCroppedImage("sudoku-puzzle-1.png")
+	#main()
 
