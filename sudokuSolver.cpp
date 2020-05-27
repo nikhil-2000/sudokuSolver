@@ -137,14 +137,30 @@ class Grid {
       int startR, startC;
       startR = i - (i % 3);
       startC = j - (j % 3);
-      for (r = startR; r < 3; r++){
-        for (c = startC; c < 3; c ++){
-          if (grid[r][c] == cellVal && r != i && c != j){
+      for (r = startR; r < startR + 3; r++){
+        for (c = startC; c < startC + 3; c ++){
+          if (grid[r][c] == cellVal && (r != i || c != j)){
             return false;
           }
         }
       }
       return true;
+    }
+
+    void outputBox(int i , int j){
+      int cellVal = grid[i][j];
+      int r,c;
+      int startR, startC;
+      startR = i - (i % 3);
+      startC = j - (j % 3);
+      for (r = startR; r < startR + 3; r++){
+        for (c = startC; c < startC + 3; c ++){
+          std :: cout << grid[r][c];
+          
+        }
+        std :: cout << "\n";
+
+      }
     }
 
     bool valueFits(int i, int j){
@@ -214,8 +230,8 @@ class Grid {
         // if false
           //call solve gap on previous gap        
       }
-      
 
+      outputBox(8,3);
 
     }
 
