@@ -133,24 +133,26 @@ def getDigit(image):
 
 	return dig[0]
 
-def cropToNumber(image):
+def isWhiteImage(image):
+	colours = {'white':0,'black':0}
+	h,w = image.shape
+	for i in range(h):
+		for j in range(w):
+			if image[i,j] != 0:
+				colours['white'] += 1
+			else:
+				colours ['black'] += 1
+	
+
+	return colours['black'] < 100
+
+
+def getNumberRect(image):
 	img = image # Read in the image and convert to grayscale
 	gray = 255*(img < 128).astype(np.uint8) # To invert the text to white
 	coords = cv2.findNonZero(gray) # Find all non-zero points (text)
 	x, y, w, h = cv2.boundingRect(coords) # Find minimum spanning bounding box
-	emptyImage = all([i == 0 for i in [w,h]])
-	extra = 4
-	if not emptyImage:
-		#x,y,w,h = x-extra,y-extra,w + 2*extra, h + 2*extra #Dont crop to close to edges of number
-
-		# print("Found Digit")
-		rect = img[y:y+h, x:x+w] # Crop the image - note we do this on the original image
-
-		# cv2.imshow("Cropped", rect) # Show it
-		# cv2.waitKey(3000)
-		return rect
-	
-	return None
+	return (x,y,w,h)
 
 def cropBlackBorder(image):
 	#gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
@@ -167,21 +169,22 @@ def cropBlackBorder(image):
 def extractDigits(cells,lineThickness):
 	sudoku = ""
 	top,bottom,left,right = lineThickness
-
+	i = 0
 	for c in cells:
-		# cv2.imshow("Cropped",c)
-		# cv2.waitKey(1000)
+
 		c = c[top:-bottom, left:-right]
-		
-		# cv2.imshow("Cropped",c)
-		# cv2.waitKey(1000)
+		numberRect = getNumberRect(c)
+		x,y,w,h = numberRect
+		x,y,w,h = x - left, y - top, w + left + right,h + top + bottom
+
+
+		if w > 0 and h > 0 and x >= 0 and y >= 0:
+			c = c[y:y+h,x:x+w]
+
 		d = getDigit(c)
 	
-		
-		# kernel = np.ones((2,2),np.uint8)
-		#c = cv2.dilate(c,kernel,iterations = 1)
-		
 		sudoku += str(d)
+		i+= 1
 
 	return sudoku
 
@@ -215,8 +218,8 @@ def showCroppedImage(filename):
 	# cv2.imshow("Disp",img)
 	# cv2.waitKey(3000)
 	img,lineThickness = cropImage(img)
-	cv2.imshow("After Border Clipping ", img)
-	cv2.waitKey(1000)
+	# cv2.imshow("After Border Clipping ", img)
+	# cv2.waitKey(1000)
 
 	cells = split_sudoku_cells(img)
 	oneLineSudoku = extractDigits(cells,lineThickness)
@@ -259,6 +262,7 @@ if __name__ == "__main__":
 	test1Actual = "900000050000506100000700000070000000000090400063000000500020000000300006010000007"
 	test2Actual = "006481300020000040700000009800090004600342001500060002300000005090000070005716200"
 	test3Actual = "000400080190600450020080000000000097002000600810000000000070060073005019040009000"
+	test4Actual = "000000000000003085001020000000507000004000100090000000500000073002010000000040009"
 
 	# borderImage = cv2.imread("test0.jpg")
 	# borderImage = cv2.cvtColor(borderImage,cv2.COLOR_BGR2GRAY)
@@ -277,6 +281,9 @@ if __name__ == "__main__":
 
 	test3Result = showCroppedImage("test3.png")
 	print(compareSudokus(test3Actual,test3Result))
+
+	test4Result = showCroppedImage("test4.jpg")
+	print(compareSudokus(test4Actual,test4Result))
 
 
 	#main()
