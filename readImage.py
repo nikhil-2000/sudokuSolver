@@ -207,27 +207,7 @@ def getOneLineSudoku(filename):
 	
 	return oneLineSudoku
 
-def showCroppedImage(filename):
 
-	img = cv2.imread(filename)
-	img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-	(thresh, img) = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
-
-
-	# cv2.imshow("Disp",img)
-	# cv2.waitKey(3000)
-	img,lineThickness = cropImage(img)
-	# cv2.imshow("After Border Clipping ", img)
-	# cv2.waitKey(1000)
-
-	cells = split_sudoku_cells(img)
-	oneLineSudoku = extractDigits(cells,lineThickness)
-	
-	# cv2.imshow("Disp 2",img)
-	# cv2.waitKey(3000)
-	print(oneLineSudoku)
-	return oneLineSudoku
 
 
 	
@@ -258,11 +238,7 @@ def compareSudokus(expected,result):
 
 
 if __name__ == "__main__":
-	test0Actual = "000000070000050801006410035607000520000209000041000609970021400105030000080000000"
-	test1Actual = "900000050000506100000700000070000000000090400063000000500020000000300006010000007"
-	test2Actual = "006481300020000040700000009800090004600342001500060002300000005090000070005716200"
-	test3Actual = "000400080190600450020080000000000097002000600810000000000070060073005019040009000"
-	test4Actual = "000000000000003085001020000000507000004000100090000000500000073002010000000040009"
+
 
 	# borderImage = cv2.imread("test0.jpg")
 	# borderImage = cv2.cvtColor(borderImage,cv2.COLOR_BGR2GRAY)
@@ -285,6 +261,14 @@ if __name__ == "__main__":
 	test4Result = showCroppedImage("test4.jpg")
 	print(compareSudokus(test4Actual,test4Result))
 
+	test5Result = showCroppedImage("test5.jpg")
+	print(compareSudokus(test5Actual,test5Result))
+
+	test6Result = showCroppedImage("test6.jpg")
+	print(compareSudokus(test6Actual,test6Result))
+
+	test7Result = showCroppedImage("test7.jpg")
+	print(compareSudokus(test7Actual,test7Result))
 
 	#main()
 
