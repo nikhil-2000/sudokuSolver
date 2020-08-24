@@ -3,6 +3,8 @@ import sys
 import pytesseract
 import numpy as np
 
+pytesseract.pytesseract.tesseract_cmd = "C:/Program Files/Tesseract-OCR/tesseract.exe"
+
 def rowCol(i):
 	return i//9 + 1, i%9 + 1
 
@@ -105,7 +107,8 @@ def cropImage(image):
 	croppedHeight = ymax - ymin
 
 	crop_img = image[ymin:ymin + croppedHeight , xmin:xmin + croppedWidth]
-	return crop_img, lineThickness
+	print(lineThickness)
+	return crop_img, [max(lineThickness) for i in lineThickness]
 
 def split_sudoku_cells(img):
 	cells = []
@@ -189,86 +192,51 @@ def extractDigits(cells,lineThickness):
 	return sudoku
 
 def getOneLineSudoku(filename):
-	print("Entering Function")
 	img = cv2.imread(filename)
 	img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 
-	print("Converted To BW")
+	print("Converting To Black and White")
 	(thresh, img) = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
 
 	print("Cropping Image")
 	img,lineThickness = cropImage(img)
 
-	print("Reading Cells")
+	print("Splitting Cells")
 	cells = split_sudoku_cells(img)
+
+	print("Reading Cells")
 	oneLineSudoku = extractDigits(cells,lineThickness)
 	
 	
 	return oneLineSudoku
 
+def showCroppedImage(filename):
 
+	img = cv2.imread(filename)
+	img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+	(thresh, img) = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+
+
+	# cv2.imshow("Disp",img)
+	# cv2.waitKey(3000)
+	img,lineThickness = cropImage(img)
+	# cv2.imshow("After Border Clipping ", img)
+	# cv2.waitKey(1000)
+
+	cells = split_sudoku_cells(img)
+	oneLineSudoku = extractDigits(cells,lineThickness)
+
+	# cv2.imshow("Disp 2",img)
+	# cv2.waitKey(3000)
+	print(oneLineSudoku)
+	return oneLineSudoku
 
 
 	
 def main(filename):
-	# return showCroppedImage(filename)
+	return getOneLineSudoku(filename)
 
-	oneLineSudoku = getOneLineSudoku(filename)
-	print(oneLineSudoku)
-
-	return oneLineSudoku
-
-def compareSudokus(expected,result):
-	assert(len(expected) == 81)
-	assert(len(expected) == len(result))
-	correct = 0
-	wrong = 0
-	for i,dig in enumerate(expected):
-		if dig == result[i]:
-			correct += 1
-		else:
-			wrong += 1
-			r,c = rowCol(i)
-			print("Wrong at row %d col %d" % (r,c))
-			print("Expected %s , Read: %s" % (dig,result[i]))
-			print()
 		
 	return wrong == 0
-
-
-if __name__ == "__main__":
-
-
-	# borderImage = cv2.imread("test0.jpg")
-	# borderImage = cv2.cvtColor(borderImage,cv2.COLOR_BGR2GRAY)
-	# cropped = cropImage(borderImage)
-	# cv2.imshow("cropped",cropped)
-	# cv2.waitKey(2000)
-	test0Result = showCroppedImage("test0.jpg")
-	print(compareSudokus(test0Actual,test0Result))
-
-
-	test1Result = showCroppedImage("test1.jpg")
-	print(compareSudokus(test1Actual,test1Result))
-	
-	test2Result = showCroppedImage("test2.png")
-	print(compareSudokus(test2Actual,test2Result))
-
-	test3Result = showCroppedImage("test3.png")
-	print(compareSudokus(test3Actual,test3Result))
-
-	test4Result = showCroppedImage("test4.jpg")
-	print(compareSudokus(test4Actual,test4Result))
-
-	test5Result = showCroppedImage("test5.jpg")
-	print(compareSudokus(test5Actual,test5Result))
-
-	test6Result = showCroppedImage("test6.jpg")
-	print(compareSudokus(test6Actual,test6Result))
-
-	test7Result = showCroppedImage("test7.jpg")
-	print(compareSudokus(test7Actual,test7Result))
-
-	#main()
-
