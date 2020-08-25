@@ -1,8 +1,10 @@
 import cv2
 import numpy as np
 import pytesseract
+import platform
 
-pytesseract.pytesseract.tesseract_cmd = "C:/Program Files/Tesseract-OCR/tesseract.exe"
+if platform == "Windows":
+    pytesseract.pytesseract.tesseract_cmd = "C:/Program Files/Tesseract-OCR/tesseract.exe"
 
 
 def rowCol(i):
