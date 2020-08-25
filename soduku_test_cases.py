@@ -58,6 +58,11 @@ class TestStringMethods(unittest.TestCase):
         self.compareSudokus(test8Actual, test8Found)
         self.assertEqual(test8Actual, test8Found)
 
+    def test_imageReadRight_9(self):
+        test9Actual = "000800176000000000000520890001030005906000301500060400054071000000000000182009000"
+        test9Found = rI.getOneLineSudoku("testImages/test9.jfif")
+        self.compareSudokus(test9Actual, test9Found)
+        self.assertEqual(test9Actual, test9Found)
 
     def compareSudokus(self,expected, result):
         assert (len(expected) == 81)
