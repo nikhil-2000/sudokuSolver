@@ -162,7 +162,9 @@ def resizeImage(img, height):
 
 def getOneLineSudoku(filename):
     img = cv2.imread(filename)
-    img = resizeImage(img,500)
+    if max(img.shape) > 1500:
+        img = resizeImage(img,1500)
+        
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     print("Converting To Black and White")
