@@ -1,8 +1,14 @@
-# sudokuSolver
+# Sudoku Solver
 
-Completes an sudoku by applying backtracking
+Completes a sudoku by applying backtracking
 
-Adding feature where image can be uploaded instead of inputting soduku
+Added feature where image can be uploaded instead of inputting sudoku
 
-This currently runs on windows, if tesseract is installed at the specified path
+This currently runs on windows and linux, if tesseract is installed at the specified path
+Install necessary packages using requirements file
 
+    pip install -r requirements.txt
+
+Solve Sudoku by typing the following
+
+    python main.py $Path_to_image
