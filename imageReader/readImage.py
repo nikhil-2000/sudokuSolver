@@ -95,11 +95,12 @@ def getDigit(image):
     custom_config = r'--oem 3 --psm 6 '
 
     dig = (pytesseract.image_to_string(image, config=custom_config))
-    dig = [d for d in dig if d.isdigit()]
-    if len(dig) == 0:
+    digitsOnly = [d for d in dig if d.isdigit()]
+
+    if len(digitsOnly) == 0:
         return "0"
 
-    return dig[0]
+    return digitsOnly[0]
 
 
 def isWhiteImage(image):
