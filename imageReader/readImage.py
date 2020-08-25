@@ -3,7 +3,7 @@ import numpy as np
 import pytesseract
 import platform
 
-if platform == "Windows":
+if platform.system() == "Windows":
     pytesseract.pytesseract.tesseract_cmd = "C:/Program Files/Tesseract-OCR/tesseract.exe"
 
 
@@ -155,8 +155,14 @@ def extractDigits(cells):
     return sudoku
 
 
+def resizeImage(img, height):
+    width = round(img.shape[1] * (height/img.shape[0]))
+    return cv2.resize(img,(height,width))
+
+
 def getOneLineSudoku(filename):
     img = cv2.imread(filename)
+    img = resizeImage(img,500)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     print("Converting To Black and White")
