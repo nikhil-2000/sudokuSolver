@@ -62,15 +62,20 @@ def test_imageReadRight_9():
     test9Found = rI.getOneLineSudoku("testImages/test9.jfif")
     compareSudokus(test9Actual, test9Found)
 
-@pytest.mark.xfail
 def test_imageReadRight_10():
-    test10Actual = "006040000098300001040009000580000079400930000310087602020000908000000020000000030"
-    test10Found = rI.getOneLineSudoku("testImages/irregularShape.jpg")
+    test10Actual = "090080070007104500600700009400902001013000290700801004800000103001208900070010080"
+    test10Found = rI.getOneLineSudoku("testImages/test10.jpg")
     compareSudokus(test10Actual, test10Found)
+
+def test_imageReadRight_11():
+    test11Actual = "000830070057000008030540000603000000205000403000000601000059040500000720020068000"
+    test11Found = rI.getOneLineSudoku("testImages/test11.jpg")
+    compareSudokus(test11Actual, test11Found)
 
 def compareSudokus(expected, result):
     assert (len(expected) == 81)
     assert (len(expected) == len(result))
+    row_col_list = []
     correct = 0
     wrong = 0
     for i, dig in enumerate(expected):
@@ -79,9 +84,9 @@ def compareSudokus(expected, result):
         else:
             wrong += 1
             r, c = rowCol(i)
+            row_col_list.append((r,c))
             print("Wrong at row %d col %d" % (r, c))
             print("Expected %s , Read: %s" % (dig, result[i]))
-            print()
 
     assert expected == result
 

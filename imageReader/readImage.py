@@ -7,11 +7,13 @@ from imageReader.croppingToBox import testing
 COMMON_ERRORS = {
     'g' : '9',
     'fe)': '9',
-    'e': '9',
+    'e' : '9',
     'Q' : '9',
     'T' : '7',
     '|' : '1',
-    'vA': '7'
+    'vA': '7',
+    'o' : '5',
+    'a' : '2'
 }
 
 
@@ -106,26 +108,56 @@ def split_sudoku_cells(img):
 
 
 def fixCommonErrors(dig):
-    dig = dig.replace("\n","").replace("\f","")
-
 
     if dig in COMMON_ERRORS.keys():
         return COMMON_ERRORS[dig]
 
     return dig
 
+def getKernel(image):
+    dim = max(image.shape) // 20
+    if dim < 3:
+        dim = 3
 
-def getDigit(image, showImage = False):
-    custom_config = r'--oem 3 --psm 6 tessedit_char_whitelist=123456789 '
+    return np.ones((dim, dim), np.uint8)
 
-    # dig = (pytesseract.image_to_string(image, config=custom_config))
-    dig = pytesseract.image_to_string(image, lang='eng', config='--psm 6 --oem 3')
+
+def remove_specials(characters):
+    return characters.replace("\n", "").replace("\f", "")
+
+
+def validateNumber(image, found, could_be):
+    k = getKernel(image)
+    eroded = cv2.erode(image,k)
+    dilated = cv2.dilate(image,k)
+    eroded_d = pytesseract.image_to_string(eroded, lang='eng', config='--psm 6 --oem 3')[0]
+    dilated_d = pytesseract.image_to_string(dilated, lang='eng', config='--psm 6 --oem 3')[0]
+    potential_numbers = [eroded_d,dilated_d,found]
+
+    could_be_count   = potential_numbers.count(could_be)
+
+    return could_be if could_be_count > 1 else found
+
+def getDigit(image, iter = 0):
+    if iter > 0:
+        image = noise_removal(image)
+
+    dig = remove_specials(pytesseract.image_to_string(image, lang='eng', config='--psm 6 --oem 3'))
     dig = fixCommonErrors(dig)
     digitsOnly = [d for d in dig if d.isdigit()]
 
-    if len(digitsOnly) == 0:
-        print(dig)
-        return "0"
+    if not digitsOnly:
+        if iter > 3 : return "0"
+        else : return getDigit(image,iter+1)
+
+    if digitsOnly[0] == "1":
+        digitsOnly[0] = validateNumber(image,"1","7")
+
+    if digitsOnly[0] == "2":
+        digitsOnly[0] = validateNumber(image,"2","7")
+
+    if digitsOnly[0] == "4":
+        digitsOnly[0] = validateNumber(image,"4","1")
 
     return digitsOnly[0]
 
@@ -150,19 +182,20 @@ def getNumberRect(img):
     return (x, y, w, h)
 
 
-def noise_removal(c):
-    kernel = np.ones((5, 5), np.uint8)
-
-    c = cv2.dilate(c, kernel, iterations=1)
-    c = cv2.erode(c, kernel, iterations=1)
-    return cv2.fastNlMeansDenoising(c)
+def noise_removal(image):
+    kernel = getKernel(image)
+    after_removing_noise = cv2.erode(
+        cv2.dilate(image, kernel)
+        , kernel
+    )
+    return after_removing_noise
 
 
 def extractDigits(cells):
     sudoku = ""
     i = 0
 
-    border = 15
+    border = 10
 
     for c in cells:
         c = draw_white_border(c)
@@ -170,7 +203,7 @@ def extractDigits(cells):
         d = 0
 
         row_col = rowCol(i)
-        if row_col in [(5,3)]:
+        if row_col in [(6, 1)]:
             print("Hit Problem cell")
 
         if not isWhiteImage(c):
@@ -208,7 +241,6 @@ def getOneLineSudoku(filename):
 
     print("Cropping Image")
     img = testing(pad_image(img))
-
 
     print("Splitting Cells")
     cells = split_sudoku_cells(img)
