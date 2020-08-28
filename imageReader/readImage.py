@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import pytesseract
 import platform
+from imageReader.croppingToBox import testing
 
 if platform.system() == "Windows":
     pytesseract.pytesseract.tesseract_cmd = "C:/Program Files/Tesseract-OCR/tesseract.exe"
@@ -160,6 +161,10 @@ def resizeImage(img, height):
     return cv2.resize(img,(height,width))
 
 
+def pad_image(img):
+    return cv2.copyMakeBorder(img, 10, 10, 10, 10, cv2.BORDER_CONSTANT, None, 255)
+
+
 def getOneLineSudoku(filename):
     img = cv2.imread(filename)
     if max(img.shape) > 1500:
@@ -171,7 +176,7 @@ def getOneLineSudoku(filename):
     (thresh, img) = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
 
     print("Cropping Image")
-    img = cropImage(img)
+    img = cropImage(pad_image(img))
 
     print("Splitting Cells")
     cells = split_sudoku_cells(img)
