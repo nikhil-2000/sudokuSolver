@@ -104,10 +104,6 @@ def main(img):
             y_points.extend([y1,y2])
             cv2.line(line_image, (x1, y1), (x2, y2), (255, 255, 255),3)
 
-
-    cv2.imshow("",line_image)
-    cv2.waitKey(0)
-
     '''
     Created line image showing outermost lines
     need to reduce border around lines
@@ -116,12 +112,12 @@ def main(img):
 
 def testing(image):
     original = np.copy(image)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     thresh = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 3)
 
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[0]
+    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
 
     ROI_number = 0
     for c in cnts:
@@ -132,10 +128,6 @@ def testing(image):
             cv2.drawContours(image, [c], 0, (36, 255, 12), 3)
             transformed = perspective_transform(original, approx)
             # rotated = rotate_image(transformed,0)
-
-            cv2.imshow(",",transformed)
-            cv2.waitKey(0)
-
             return transformed
 
 

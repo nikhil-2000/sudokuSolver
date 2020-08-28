@@ -49,10 +49,10 @@ def test_imageReadRight_7():
     test7Found = rI.getOneLineSudoku("testImages/test7.jpg")
     compareSudokus(test7Actual, test7Found)
 
-@pytest.mark.xfail
 def test_imageReadRight_8():
-    test8Actual = "003042090090060500500000010001700285008000100329008700030000001005090020080210600"
-    test8Found = rI.getOneLineSudoku("testImages/test8.png")
+    test8Actual = "009070083204600050780000102040052090007106200050890041901000070060709304000580900"
+
+    test8Found = rI.getOneLineSudoku("testImages/test8.jpg")
     compareSudokus(test8Actual, test8Found)
 
 
@@ -65,7 +65,7 @@ def test_imageReadRight_9():
 @pytest.mark.xfail
 def test_imageReadRight_10():
     test10Actual = "006040000098300001040009000580000079400930000310087602020000908000000020000000030"
-    test10Found = rI.getOneLineSudoku("testImages/test10.jpg")
+    test10Found = rI.getOneLineSudoku("testImages/irregularShape.jpg")
     compareSudokus(test10Actual, test10Found)
 
 def compareSudokus(expected, result):

@@ -4,6 +4,17 @@ import pytesseract
 import platform
 from imageReader.croppingToBox import testing
 
+COMMON_ERRORS = {
+    'g' : '9',
+    'fe)': '9',
+    'e': '9',
+    'Q' : '9',
+    'T' : '7',
+    '|' : '1',
+    'vA': '7'
+}
+
+
 if platform.system() == "Windows":
     pytesseract.pytesseract.tesseract_cmd = "C:/Program Files/Tesseract-OCR/tesseract.exe"
 
@@ -94,29 +105,33 @@ def split_sudoku_cells(img):
     return cells
 
 
-def getDigit(image):
-    custom_config = r'--oem 3 --psm 6 '
+def fixCommonErrors(dig):
+    dig = dig.replace("\n","").replace("\f","")
 
-    dig = (pytesseract.image_to_string(image, config=custom_config))
+
+    if dig in COMMON_ERRORS.keys():
+        return COMMON_ERRORS[dig]
+
+    return dig
+
+
+def getDigit(image, showImage = False):
+    custom_config = r'--oem 3 --psm 6 tessedit_char_whitelist=123456789 '
+
+    # dig = (pytesseract.image_to_string(image, config=custom_config))
+    dig = pytesseract.image_to_string(image, lang='eng', config='--psm 6 --oem 3')
+    dig = fixCommonErrors(dig)
     digitsOnly = [d for d in dig if d.isdigit()]
 
     if len(digitsOnly) == 0:
+        print(dig)
         return "0"
 
     return digitsOnly[0]
 
 
 def isWhiteImage(image):
-    colours = {'white': 0, 'black': 0}
-    h, w = image.shape
-    for i in range(h):
-        for j in range(w):
-            if image[i, j] != 0:
-                colours['white'] += 1
-            else:
-                colours['black'] += 1
-
-    return colours['black'] < sum(colours.values()) / 100
+    return np.all(image == 255)
 
 
 def draw_white_border(image):
@@ -135,19 +150,34 @@ def getNumberRect(img):
     return (x, y, w, h)
 
 
+def noise_removal(c):
+    kernel = np.ones((5, 5), np.uint8)
+
+    c = cv2.dilate(c, kernel, iterations=1)
+    c = cv2.erode(c, kernel, iterations=1)
+    return cv2.fastNlMeansDenoising(c)
+
+
 def extractDigits(cells):
     sudoku = ""
     i = 0
+
+    border = 15
+
     for c in cells:
         c = draw_white_border(c)
+        # c = noise_removal(c)
         d = 0
+
+        row_col = rowCol(i)
+        if row_col in [(5,3)]:
+            print("Hit Problem cell")
 
         if not isWhiteImage(c):
             numberRect = getNumberRect(c)
             x, y, w, h = numberRect
             c = c[y:y + h, x:x + w]
-            c = cv2.copyMakeBorder(c, 10, 10, 10, 10, cv2.BORDER_CONSTANT, value=(255, 255, 255))
-
+            c = cv2.copyMakeBorder(c, border, border,border,border, cv2.BORDER_CONSTANT, value=(255, 255, 255))
             d = getDigit(c)
 
         sudoku += str(d)
@@ -162,13 +192,14 @@ def resizeImage(img, height):
 
 
 def pad_image(img):
-    return cv2.copyMakeBorder(img, 10, 10, 10, 10, cv2.BORDER_CONSTANT, None, 255)
+    img =  cv2.copyMakeBorder(img, 10, 10, 10, 10, cv2.BORDER_CONSTANT, None, 255)
+    return img
 
 
 def getOneLineSudoku(filename):
     img = cv2.imread(filename)
-    if max(img.shape) > 1500:
-        img = resizeImage(img,1500)
+    # if max(img.shape) > 1500:
+    #     img = resizeImage(img,1500)
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -176,7 +207,8 @@ def getOneLineSudoku(filename):
     (thresh, img) = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
 
     print("Cropping Image")
-    img = cropImage(pad_image(img))
+    img = testing(pad_image(img))
+
 
     print("Splitting Cells")
     cells = split_sudoku_cells(img)
