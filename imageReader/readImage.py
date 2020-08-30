@@ -199,7 +199,7 @@ def extractDigits(cells):
             numberRect = getNumberRect(c)
             x, y, w, h = numberRect
             c = c[y:y + h, x:x + w]
-            c = cv2.copyMakeBorder(c, border, border,border,border, cv2.BORDER_CONSTANT, value=(255, 255, 255))
+            c = pad_image(c, border)
             d = getDigit(c)
 
         sudoku += str(d)
@@ -213,16 +213,13 @@ def resizeImage(img, height):
     return cv2.resize(img,(height,width))
 
 
-def pad_image(img):
-    img =  cv2.copyMakeBorder(img, 10, 10, 10, 10, cv2.BORDER_CONSTANT, None, 255)
+def pad_image(img, border = 10):
+    img =  cv2.copyMakeBorder(img, border, border, border, border, cv2.BORDER_CONSTANT, None, 255)
     return img
 
 
 def getOneLineSudoku(filename):
     img = cv2.imread(filename)
-    # if max(img.shape) > 1500:
-    #     img = resizeImage(img,1500)
-
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     print("Converting To Black and White")
