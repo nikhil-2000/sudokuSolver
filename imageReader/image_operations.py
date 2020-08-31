@@ -111,9 +111,37 @@ def cropImage(image):
             # rotated = rotate_image(transformed,0)
             return transformed
 
-def crop_to_number(cell):
+def crop_to_number(cell, padding = True):
     numberRect = getNumberRect(cell)
     x, y, w, h = numberRect
     cell = cell[y:y + h, x:x + w]
-    cell = pad_image(cell)
+    if padding : cell = pad_image(cell)
     return cell
+
+def add_image_onto(cell, solved_cell_image):
+    height,width = cell.shape
+    solved_cell_image = crop_to_number(solved_cell_image,False)
+    x_offset = int((width - solved_cell_image.shape[1]) / 2)
+    y_offset = int((height - solved_cell_image.shape[0]) / 2)
+
+    cell[y_offset:y_offset + solved_cell_image.shape[0], x_offset:x_offset + solved_cell_image.shape[1]] = solved_cell_image
+    return cell
+
+def show(img):
+    cv2.imshow("",img)
+    cv2.waitKey(0)
+
+def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
+    dim = None
+    (h, w) = image.shape[:2]
+
+    if width is None and height is None:
+        return image
+    if width is None:
+        r = height / float(h)
+        dim = (int(w * r), height)
+    else:
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    return cv2.resize(image, dim, interpolation=inter)

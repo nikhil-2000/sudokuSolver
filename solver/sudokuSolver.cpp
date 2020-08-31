@@ -231,8 +231,6 @@ class Grid {
           //call solve gap on previous gap        
       }
 
-      outputBox(8,3);
-
     }
 
 };
