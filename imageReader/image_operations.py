@@ -91,9 +91,8 @@ def perspective_transform(image, corners):
     # Return the transformed image
     return cv2.warpPerspective(image, matrix, (width, height))
 
-def cropImage(image):
-    original = np.copy(image)
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+def get_largest_box(image, isGray = True):
+    if not isGray: image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     thresh = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 3)
 
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -106,10 +105,18 @@ def cropImage(image):
         approx = cv2.approxPolyDP(c, 0.015 * peri, True)
 
         if len(approx) == 4:
-            cv2.drawContours(image, [c], 0, (36, 255, 12), 3)
-            transformed = perspective_transform(original, approx)
-            # rotated = rotate_image(transformed,0)
-            return transformed
+            return c,approx
+
+def cropImage(image, isGray = True):
+    original = np.copy(image)
+    contour, corners = get_largest_box(original,isGray)
+    transformed = perspective_transform(original, corners)
+    # rotated = rotate_image(transformed,0)
+    return transformed
+
+def cropImageToCorners(image,corners):
+    transformed = perspective_transform(image,corners)
+    return transformed
 
 def crop_to_number(cell, padding = True):
     numberRect = getNumberRect(cell)
@@ -119,8 +126,7 @@ def crop_to_number(cell, padding = True):
     return cell
 
 def add_image_onto(cell, solved_cell_image):
-    height,width = cell.shape
-    solved_cell_image = crop_to_number(solved_cell_image,False)
+    height,width,_ = cell.shape
     x_offset = int((width - solved_cell_image.shape[1]) / 2)
     y_offset = int((height - solved_cell_image.shape[0]) / 2)
 

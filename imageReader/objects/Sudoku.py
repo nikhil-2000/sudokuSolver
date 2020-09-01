@@ -18,14 +18,14 @@ if platform.system() == "Windows":
     pytesseract.tesseract_cmd = "C:/Program Files/Tesseract-OCR/tesseract.exe"
 
 class Sudoku:
-    def __init__(self, sudoku_image):
+    def __init__(self, sudoku_image,sudoku_image_bw):
         self.image = sudoku_image
-        self.cells = []
+        self.image_bw = sudoku_image_bw
         self.number_to_image_dict = populate_dictionary()
-        self.split_sudoku_cells()
+        self.cells = split_sudoku_cells(self.image)
+        self.cells_bw = split_sudoku_cells(self.image_bw)
+
         self.one_line_sudoku = self.extractDigits()
-
-
 
     def get_one_line_sudoku(self):
         return self.one_line_sudoku
@@ -36,25 +36,19 @@ class Sudoku:
     def get_cell_image(self,digit):
         return self.number_to_image_dict[digit]
 
-    def split_sudoku_cells(self):
-        image = np.copy(self.image)
-        rows = np.array_split(image, 9)
-
-        for r in rows:
-            splitRow = np.array_split(r, 9, axis=1)
-            self.cells.extend(splitRow)
-
     def extractDigits(self):
         sudoku = ""
         i = 0
 
-        for i,c in enumerate(self.cells):
+        for i,c in enumerate(self.cells_bw):
             current_cell = draw_white_border(np.copy(c))
             d = "0"
 
             if not isWhiteImage(current_cell):
                 current_cell = crop_to_number(current_cell)
                 d = self.getDigit(current_cell)
+
+                self.update_number_image_dict(d,i)
 
             sudoku += str(d)
             i += 1
@@ -84,16 +78,20 @@ class Sudoku:
         if digitsOnly[0] == "4":
             digitsOnly[0] = validateNumber(image, "4", "1")
 
-        if iter == 0:
-            self.update_number_image_dict(digitsOnly[0],image)
 
         return digitsOnly[0]
 
-    def update_number_image_dict(self, digit, image):
-
+    def update_number_image_dict(self, digit, cell_index):
+        bw_cell = draw_white_border(self.cells_bw[cell_index])
+        x, y, w, h = getNumberRect(bw_cell)
+        cropped_number = self.cells[cell_index][y:y + h, x:x + w]
+        if digit == "0": return
         if self.number_to_image_dict[digit] == []:
-            self.number_to_image_dict[digit] = image
+            self.number_to_image_dict[digit] = cropped_number
 
+    def fill_empty_numbers(self):
+        empty_key_value = [(k,v) for k,v in self.number_to_image_dict.items() if v == []]
+        print(empty_key_value)
 
 def populate_dictionary():
     d = {}
@@ -121,3 +119,14 @@ def validateNumber(cell, found, could_be):
     could_be_count = potential_numbers.count(could_be)
 
     return could_be if could_be_count > 1 else found
+
+def split_sudoku_cells(image):
+    image = np.copy(image)
+    rows = np.array_split(image, 9)
+    cells = []
+
+    for r in rows:
+        splitRow = np.array_split(r, 9, axis=1)
+        cells.extend(splitRow)
+
+    return cells
