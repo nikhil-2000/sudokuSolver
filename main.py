@@ -18,6 +18,10 @@ def main():
     p = subprocess.check_output(args)
     print("-------------------")
     solved_section = p.decode("utf-8").split("Solving ...")[1]
+
+    if "Unsolvable Grid" in solved_section:
+        return
+
     solved_sudoku = ""
     i = 0
     while len(solved_sudoku) < 81:
@@ -27,7 +31,6 @@ def main():
 
         i += 1
 
-    print(solved_sudoku)
     whole_image.project_onto_sudoku(solved_sudoku)
 
 if __name__ == "__main__":

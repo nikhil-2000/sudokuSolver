@@ -17,6 +17,8 @@ COMMON_ERRORS = {
 if platform.system() == "Windows":
     pytesseract.tesseract_cmd = "C:/Program Files/Tesseract-OCR/tesseract.exe"
 
+
+
 class Sudoku:
     def __init__(self, sudoku_image,sudoku_image_bw):
         self.image = sudoku_image
@@ -90,8 +92,12 @@ class Sudoku:
             self.number_to_image_dict[digit] = cropped_number
 
     def fill_empty_numbers(self):
+        non_empty_image = next(img for img in self.number_to_image_dict.values() if img != [])
         empty_key_value = [(k,v) for k,v in self.number_to_image_dict.items() if v == []]
-        print(empty_key_value)
+        for (k,v) in empty_key_value:
+            self.number_to_image_dict[k] = ResizeWithAspectRatio(getDefaultDigit(k),height=non_empty_image.shape[0])
+
+
 
 def populate_dictionary():
     d = {}
@@ -130,3 +136,7 @@ def split_sudoku_cells(image):
         cells.extend(splitRow)
 
     return cells
+
+
+def getDefaultDigit(k):
+    return cv2.imread("Images/digitImages/" + k + ".PNG")

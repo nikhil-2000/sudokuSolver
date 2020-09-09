@@ -206,12 +206,12 @@ class Grid {
         col = getTupleCol(gaps.at(currentGap));
         
         gapSolved = solveGap(row,col);
-        count ++;
-        if (count == 1000000){
-          std :: cout << "\n\n\n\n";
-          outputGrid();
-          count = 0;
-        }
+//        count ++;
+//        if (count == 1000000){
+//          std :: cout << "\n\n\n\n";
+//          outputGrid();
+//          count = 0;
+//        }
       
 
 

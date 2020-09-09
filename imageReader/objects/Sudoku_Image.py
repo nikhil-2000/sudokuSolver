@@ -20,8 +20,7 @@ class Sudoku_Image:
         print("Cropping Image")
         img_bw = cropImage(pad_image(self.image_bw))
 
-        _,corners = get_largest_box(self.image_bw)
-
+        _,corners = get_largest_box(pad_image(self.image_bw,border=1))
         img = cropImageToCorners(self.image,corners)
 
         print("Splitting Cells")
