@@ -86,6 +86,9 @@ class Sudoku:
     def update_number_image_dict(self, digit, cell_index):
         bw_cell = draw_white_border(self.cells_bw[cell_index])
         x, y, w, h = getNumberRect(bw_cell)
+        #Need a better way to pick this value, seems to work for all test cases though
+        p = 2
+        x , y , w , h = x - p, y - p, w + 2*p, h + 2*p
         cropped_number = self.cells[cell_index][y:y + h, x:x + w]
         if digit == "0": return
         if self.number_to_image_dict[digit] == []:

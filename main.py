@@ -4,8 +4,7 @@ import subprocess
 import platform
 
 
-def main():
-    filename = sys.argv[1]
+def main(filename):
     whole_image = Sudoku_Image(filename)
     oneLineSudoku = whole_image.get_sudoku_from_image()
     if platform.system() == "Windows":
@@ -16,10 +15,10 @@ def main():
         args = ['solver/sudokuSolver', oneLineSudoku]
 
     p = subprocess.check_output(args)
-    print("-------------------")
     solved_section = p.decode("utf-8").split("Solving ...")[1]
 
     if "Unsolvable Grid" in solved_section:
+        print("Cannot solve sudoku")
         return
 
     solved_sudoku = ""
@@ -32,6 +31,8 @@ def main():
         i += 1
 
     whole_image.project_onto_sudoku(solved_sudoku)
+    print("-------------------")
 
 if __name__ == "__main__":
-    main()
+    file = sys.argv[1]
+    main(file)
