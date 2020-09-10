@@ -91,9 +91,8 @@ def perspective_transform(image, corners):
     # Return the transformed image
     return cv2.warpPerspective(image, matrix, (width, height))
 
-def cropImage(image):
-    original = np.copy(image)
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+def get_largest_box(image, isGray = True):
+    if not isGray: image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     thresh = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 3)
 
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -106,14 +105,49 @@ def cropImage(image):
         approx = cv2.approxPolyDP(c, 0.015 * peri, True)
 
         if len(approx) == 4:
-            cv2.drawContours(image, [c], 0, (36, 255, 12), 3)
-            transformed = perspective_transform(original, approx)
-            # rotated = rotate_image(transformed,0)
-            return transformed
+            return c,approx
 
-def crop_to_number(cell):
+def cropImage(image, isGray = True):
+    original = np.copy(image)
+    contour, corners = get_largest_box(original,isGray)
+    transformed = perspective_transform(original, corners)
+    # rotated = rotate_image(transformed,0)
+    return transformed
+
+def cropImageToCorners(image,corners):
+    transformed = perspective_transform(image,corners)
+    return transformed
+
+def crop_to_number(cell, padding = True):
     numberRect = getNumberRect(cell)
     x, y, w, h = numberRect
     cell = cell[y:y + h, x:x + w]
-    cell = pad_image(cell)
+    if padding : cell = pad_image(cell)
     return cell
+
+def add_image_onto(cell, solved_cell_image):
+    height,width,_ = cell.shape
+    x_offset = int((width - solved_cell_image.shape[1]) / 2)
+    y_offset = int((height - solved_cell_image.shape[0]) / 2)
+
+    cell[y_offset:y_offset + solved_cell_image.shape[0], x_offset:x_offset + solved_cell_image.shape[1]] = solved_cell_image
+    return cell
+
+def show(img):
+    cv2.imshow("",img)
+    cv2.waitKey(0)
+
+def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
+    dim = None
+    (h, w) = image.shape[:2]
+
+    if width is None and height is None:
+        return image
+    if width is None:
+        r = height / float(h)
+        dim = (int(w * r), height)
+    else:
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    return cv2.resize(image, dim, interpolation=inter)
