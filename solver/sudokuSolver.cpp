@@ -3,6 +3,7 @@
 #include <tuple>
 #include <string>
 #include <fstream>
+#include "sudokuSolver.h"
 
 class Grid {
   public:
@@ -21,6 +22,20 @@ class Grid {
       std :: cout << "\n\n";
       outputGrid();
 
+    }
+
+    std::string getOneLineGrid() {
+      char currentChar;
+      std::string oneLineGrid = "";
+      for (int i = 0;  i < 9; i++){
+        for (int j = 0;  j < 9; j++ ){
+          currentChar = grid[i][j];
+          oneLineGrid = oneLineGrid+currentChar;
+        }
+    
+      }
+
+      return oneLineGrid;
     }
 
     void outputGrid(){
@@ -235,10 +250,19 @@ class Grid {
 
 };
 
+std::string solveSudoku(std :: string oneLineSudoku) {
+    Grid sudokuGrid;
+    sudokuGrid.main(oneLineSudoku);
+    return sudokuGrid.getOneLineGrid();
+}
+
 
 int main(int argc, char *argv[]) {
-  Grid sudokuGrid;
   std::string oneLineSudoku = argv[1];
-  sudokuGrid.main(oneLineSudoku);
+  solveSudoku(oneLineSudoku);
   return 0;
+}
+
+void outputOne(){
+  std::cout << "1";
 }
